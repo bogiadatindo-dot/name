@@ -1,0 +1,9 @@
+Package: com.bogiadat.rainbowbar
+Name: RainbowBar
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: RainbowBar tweak
+Maintainer: Bo Gia Dat
+Author: Bo Gia Dat
+Section: Tweaks
+Depends: mobilesubstrate
