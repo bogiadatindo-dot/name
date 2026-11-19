@@ -63,12 +63,28 @@ static void CreateRainbowBar(void) {
         a;
     }) forKey:@"rainbow"];
 
-    gradient.mask = ({
-        CALayer *mask = [CALayer layer];
-        mask.frame = label.bounds;
-        mask.contents = (__bridge id)[self_placeholder CGImage];
-        mask;
-    });
+    CATextLayer *textMask = [CATextLayer layer];
+textMask.string = label.text;
+textMask.font = (__bridge CFTypeRef)label.font;
+textMask.fontSize = label.font.pointSize;
+textMask.alignmentMode = kCAAlignmentCenter;
+textMask.contentsScale = UIScreen.mainScreen.scale;
+textMask.frame = label.bounds;
+
+CAGradientLayer *rainbow = [CAGradientLayer layer];
+rainbow.frame = label.bounds;
+rainbow.colors = @[
+    (id)UIColor.redColor.CGColor,
+    (id)UIColor.orangeColor.CGColor,
+    (id)UIColor.yellowColor.CGColor,
+    (id)UIColor.greenColor.CGColor,
+    (id)UIColor.cyanColor.CGColor,
+    (id)UIColor.blueColor.CGColor,
+    (id)UIColor.magentaColor.CGColor
+];
+
+rainbow.mask = textMask;
+[label.layer addSublayer:rainbow];
 
     [bar addSubview:label];
     [window addSubview:bar];
