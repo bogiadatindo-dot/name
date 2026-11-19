@@ -21,7 +21,7 @@ static void CreateNameBar(void) {
         if (!window || nameLabel) return;
 
         UILabel *label = [[UILabel alloc] init];
-        label.text = @"PLAYER NAME";
+        label.text = @"Bogiadat X TedTeam";
         label.textColor = UIColor.whiteColor;
         label.font = [UIFont boldSystemFontOfSize:17];
         label.textAlignment = NSTextAlignmentCenter;
