@@ -20,7 +20,14 @@ jobs:
           theos-branch: main
           sdks-src: waruhachi/sdks
           sdks-branch: main
-
+          
+      - name: Check old code
+        run: |
+          if grep -n "self_placeholder" Tweak.xm; then
+            echo "ERROR: Old code still exists!"
+            exit 1
+          fi
+          echo "Source code is clean"
       - name: Build
         run: |
           make clean
