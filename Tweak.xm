@@ -29,7 +29,7 @@ static void CreateRainbowBar(void) {
     bar.clipsToBounds = YES;
 
     UILabel *label = [[UILabel alloc] init];
-    label.text = @"PLAYER NAME";
+    label.text = @"Bogiadat X Ted Team";
     label.font = [UIFont boldSystemFontOfSize:17];
     label.textAlignment = NSTextAlignmentCenter;
     label.textColor = UIColor.whiteColor;
