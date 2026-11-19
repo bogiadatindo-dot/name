@@ -1,37 +1,35 @@
-name: Build iOS Dylib
+
+name: Build RainbowBar
 
 on:
-  push:
-    branches: [ main, master ]
   workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   build:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Theos
+      - name: Setup Theos
+        uses: waruhachi/theos-action@v2.6.3
+        with:
+          theos-src: waruhachi/theos
+          theos-branch: main
+          sdks-src: waruhachi/sdks
+          sdks-branch: main
+
+      - name: Build
         run: |
-          rm -rf $HOME/theos
-          git clone --recursive https://github.com/theos/theos.git $HOME/theos
-          git clone https://github.com/theos/sdks.git $HOME/theos/sdks
+          make clean
+          make package THEOS_PACKAGE_SCHEME=rootless
 
-      - name: Build Dylib
-        env:
-          THEOS: ${{ runner.env.HOME }}/theos
-        run: |
-          make clean all FINALPACKAGE=1
-
-      - name: Prepare Dylib Artifact
-        run: |
-          mkdir -p compiled_dylib
-          cp .theos/obj/BogiadatXTedTeam.dylib compiled_dylib/BogiadatXTedTeam.dylib
-
-      - name: Upload Dylib Artifact
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: BogiadatXTedTeam-dylib
-          path: compiled_dylib/BogiadatXTedTeam.dylib
+          name: RainbowBar
+          path: |
+            packages/*.deb
+            .theos/**/*.dylib
