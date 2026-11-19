@@ -1,76 +1,99 @@
+
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 
-static UIView *bottomBannerView = nil;
-static UILabel *titleLabel = nil;
-static NSTimer *rainbowTimer = nil;
-static CGFloat colorHue = 0.0;
+static UIView *rainbowBar;
 
-static void updateRainbowColor() {
-    if (!titleLabel) return;
-    // Thay đổi sắc độ màu (Hue) liên tục từ 0.0 đến 1.0
-    colorHue += 0.01;
-    if (colorHue > 1.0) colorHue = 0.0;
-    
-    titleLabel.textColor = [UIColor colorWithHue:colorHue saturation:1.0 brightness:1.0 alpha:1.0];
-}
+static void CreateRainbowBar(void) {
+    UIWindow *window = nil;
 
-static void setupBottomBanner() {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIWindow *keyWindow = nil;
-        for (UIWindowScene *scene in [UIApplication sharedApplication].connectedScenes) {
-            if (scene.activationState == UISceneActivationStateForegroundActive && [scene isKindOfClass:[UIWindowScene class]]) {
-                for (UIWindow *w in scene.windows) {
-                    if (w.isKeyWindow) {
-                        keyWindow = w;
-                        break;
-                    }
-                }
+    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        if (![scene isKindOfClass:UIWindowScene.class]) continue;
+
+        for (UIWindow *w in ((UIWindowScene *)scene).windows) {
+            if (w.isKeyWindow) {
+                window = w;
+                break;
             }
         }
-        if (!keyWindow) return;
+        if (window) break;
+    }
 
-        if (bottomBannerView) {
-            [bottomBannerView removeFromSuperview];
-            [rainbowTimer invalidate];
-            rainbowTimer = nil;
-        }
+    if (!window || rainbowBar) return;
 
-        CGFloat screenWidth = keyWindow.bounds.size.width;
-        CGFloat screenHeight = keyWindow.bounds.size.height;
-        CGFloat barWidth = 280.0;
-        CGFloat barHeight = 32.0;
+    UIView *bar = [[UIView alloc] init];
+    bar.backgroundColor = [UIColor colorWithWhite:0 alpha:0.65];
+    bar.layer.cornerRadius = 7;
+    bar.layer.borderWidth = 1.5;
+    bar.layer.borderColor = UIColor.cyanColor.CGColor;
+    bar.clipsToBounds = YES;
 
-        // Khung nền thanh màu tối mờ để làm nổi bật chữ cầu vồng
-        bottomBannerView = [[UIView alloc] initWithFrame:CGRectMake((screenWidth - barWidth) / 2.0, screenHeight - barHeight - 16.0, barWidth, barHeight)];
-        bottomBannerView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
-        bottomBannerView.layer.cornerRadius = 6.0;
-        bottomBannerView.layer.borderWidth = 1.0;
-        bottomBannerView.layer.borderColor = [UIColor whiteColor].CGColor;
-        bottomBannerView.userInteractionEnabled = NO; // Cho phép bấm xuyên qua
-        bottomBannerView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    UILabel *label = [[UILabel alloc] init];
+    label.text = @"PLAYER NAME";
+    label.font = [UIFont boldSystemFontOfSize:17];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.textColor = UIColor.whiteColor;
+    label.frame = CGRectMake(0, 0, 220, 34);
 
-        titleLabel = [[UILabel alloc] initWithFrame:bottomBannerView.bounds];
-        titleLabel.text = @"BOGIADAT X TEDTEAM";
-        titleLabel.font = [UIColor.boldSystemFontOfSize] ? [UIFont boldSystemFontOfSize:14.0] : [UIFont systemFontOfSize:14.0];
-        titleLabel.textAlignment = NSTextAlignmentCenter;
-        titleLabel.layer.shadowColor = [UIColor blackColor].CGColor;
-        titleLabel.layer.shadowOffset = CGSizeMake(1.0, 1.0);
-        titleLabel.layer.shadowOpacity = 0.9;
-        titleLabel.layer.shadowRadius = 2.0;
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = label.bounds;
+    gradient.colors = @[
+        (id)[UIColor.redColor CGColor],
+        (id)[UIColor.orangeColor CGColor],
+        (id)[UIColor.yellowColor CGColor],
+        (id)[UIColor.greenColor CGColor],
+        (id)[UIColor.cyanColor CGColor],
+        (id)[UIColor.blueColor CGColor],
+        (id)[UIColor.magentaColor CGColor],
+        (id)[UIColor.redColor CGColor]
+    ];
 
-        [bottomBannerView addSubview:titleLabel];
-        [keyWindow addSubview:bottomBannerView];
+    gradient.startPoint = CGPointMake(0, 0.5);
+    gradient.endPoint = CGPointMake(1, 0.5);
 
-        // Khởi động bộ hẹn giờ đổi màu chữ liên tục (mỗi 0.05 giây)
-        rainbowTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:[NSBlockOperation blockOperationWithBlock:^{
-            updateRainbowColor();
-        }] selector:@selector(main) userInfo:nil repeats:YES];
+    [gradient addAnimation:({
+        CABasicAnimation *a =
+        [CABasicAnimation animationWithKeyPath:@"locations"];
+        a.fromValue = @[@0, @0.15, @0.3, @0.45,
+                        @0.6, @0.75, @0.9, @1];
+        a.toValue = @[@-1, @-0.85, @-0.7, @-0.55,
+                      @-0.4, @-0.25, @-0.1, @0];
+        a.duration = 3.0;
+        a.repeatCount = HUGE_VALF;
+        a;
+    }) forKey:@"rainbow"];
+
+    gradient.mask = ({
+        CALayer *mask = [CALayer layer];
+        mask.frame = label.bounds;
+        mask.contents = (__bridge id)[self_placeholder CGImage];
+        mask;
     });
+
+    [bar addSubview:label];
+    [window addSubview:bar];
+
+    bar.translatesAutoresizingMaskIntoConstraints = NO;
+
+    [NSLayoutConstraint activateConstraints:@[
+        [bar.centerXAnchor constraintEqualToAnchor:window.centerXAnchor],
+        [bar.topAnchor constraintEqualToAnchor:window.safeAreaLayoutGuide.topAnchor
+                                       constant:75],
+        [bar.widthAnchor constraintEqualToConstant:220],
+        [bar.heightAnchor constraintEqualToConstant:34]
+    ]];
+
+    rainbowBar = bar;
 }
 
-%hook UIWindow
-- (void)makeKeyAndVisible {
-    %orig;
-    setupBottomBanner();
+%ctor {
+    @autoreleasepool {
+        [[NSNotificationCenter defaultCenter]
+         addObserverForName:UIApplicationDidBecomeActiveNotification
+         object:nil
+         queue:NSOperationQueue.mainQueue
+         usingBlock:^(NSNotification *note) {
+            CreateRainbowBar();
+         }];
+    }
 }
-%end
