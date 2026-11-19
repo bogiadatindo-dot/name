@@ -1,7 +1,7 @@
 Package: com.bogiadat.tedteam.banner
 Name: Bogiadat X TedTeam
 Version: 1.0.0
-Architecture: iphoneos-arm
+Architecture: iphoneos-arm64
 Description: Thanh hien thi ten Bogiadat X TedTeam o duoi man hinh ngang
 Maintainer: Bogiadat X TedTeam
 Author: Bogiadat X TedTeam
