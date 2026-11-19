@@ -1,0 +1,49 @@
+name: Build iOS Deb (Rootful & Rootless)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git $HOME/theos
+          curl -LO https://github.com/theos/sdks/archive/master.zip
+          unzip master.zip
+          mv sdks-master/*.sdk $HOME/theos/sdks/
+          rm -rf master.zip sdks-master
+
+      - name: Build Rootful DEB
+        env:
+          THEOS: ${{ runner.env.HOME }}/theos
+        run: |
+          make clean package FINALPACKAGE=1
+
+      - name: Rename Rootful DEB
+        run: |
+          mkdir -p compiled_deb
+          mv packages/*.deb compiled_deb/BogiadatXTedTeam_Rootful.deb
+
+      - name: Build Rootless DEB
+        env:
+          THEOS: ${{ runner.env.HOME }}/theos
+        run: |
+          make clean package FINALPACKAGE=1 ROOTLESS=1
+
+      - name: Rename Rootless DEB
+        run: |
+          mv packages/*.deb compiled_deb/BogiadatXTedTeam_Rootless.deb
+
+      - name: Upload Both DEB Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BogiadatXTedTeam-Both-Versions
+          path: compiled_deb/*.deb
