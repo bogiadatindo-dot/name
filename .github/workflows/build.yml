@@ -15,6 +15,7 @@ jobs:
 
       - name: Install Theos
         run: |
+          rm -rf $HOME/theos
           git clone --recursive https://github.com/theos/theos.git $HOME/theos
           git clone https://github.com/theos/sdks.git $HOME/theos/sdks
 
